@@ -2,12 +2,10 @@ package com.example.urbancanopy.viewmodel
 
 import androidx.lifecycle.*
 import com.example.urbancanopy.logic.Repository
-import com.example.urbancanopy.model.Patch
+import com.example.urbancanopy.model.Report
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-
-import com.example.urbancanopy.model.Report
 
 class MapViewModel(private val repository: Repository) : ViewModel() {
 
@@ -23,9 +21,9 @@ class MapViewModel(private val repository: Repository) : ViewModel() {
     }
 
     // This would call the C++ clustering logic via Repository -> GameEngine
-    fun getClusteredMarkers(zoom: Float): List<Patch> {
-        // Simplified for now: in a real app, we'd pass the current patch list to JNI
-        return _patches.value ?: emptyList()
+    fun getClusteredMarkers(zoom: Float): List<Report> {
+        // Simplified for now: in a real app, we'd pass the current report list to JNI
+        return _reports.value ?: emptyList()
     }
 }
 
