@@ -62,7 +62,19 @@
         android:id="@+id/reportDetailsFragment"
         android:name="com.example.urbancanopy.ui.report.ReportDetailsFragment"
         android:label="Report Details"
-        tools:layout="@layout/fragment_report_details" />
+        tools:layout="@layout/fragment_report_details">
+        <action
+            android:id="@+id/action_reportDetails_to_submissionSuccess"
+            app:destination="@id/submissionSuccessFragment"
+            app:popUpTo="@id/cameraFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/submissionSuccessFragment"
+        android:name="com.example.urbancanopy.ui.report.SubmissionSuccessFragment"
+        android:label="Submission Success"
+        tools:layout="@layout/fragment_submission_success" />
 
     <fragment
         android:id="@+id/walletFragment"

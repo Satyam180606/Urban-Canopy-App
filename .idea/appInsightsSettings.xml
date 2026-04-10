@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.example.urbancanopy" />
+                  <option name="mobileSdkAppId" value="1:162241789831:android:665abeb58980f27e6e1d22" />
+                  <option name="projectId" value="urban-canopy-solution" />
+                  <option name="projectNumber" value="162241789831" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

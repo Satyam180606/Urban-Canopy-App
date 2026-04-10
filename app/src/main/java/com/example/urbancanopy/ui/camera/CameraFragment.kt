@@ -1,5 +1,6 @@
 package com.example.urbancanopy.ui.camera
 
+import com.example.urbancanopy.viewmodel.ReportViewModel
 import com.example.urbancanopy.R
 import androidx.navigation.fragment.findNavController
 import android.graphics.Bitmap
@@ -34,7 +35,11 @@ class CameraFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var viewModel: CameraViewModel
+    private lateinit var reportViewModel: ReportViewModel
     private var imageCapture: ImageCapture? = null
+    private var camera: Camera? = null
+    private var lensFacing = CameraSelector.LENS_FACING_BACK
+    private var flashMode = ImageCapture.FLASH_MODE_OFF
     private lateinit var cameraExecutor: ExecutorService
     private var capturedBitmap: Bitmap? = null
 
@@ -52,6 +57,7 @@ class CameraFragment : Fragment() {
         val repository = Repository()
         val factory = CameraViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory).get(CameraViewModel::class.java)
+        reportViewModel = ViewModelProvider(requireActivity()).get(ReportViewModel::class.java)
 
         if (allPermissionsGranted()) {
             startCamera()
@@ -60,9 +66,37 @@ class CameraFragment : Fragment() {
         }
 
         binding.imageCaptureButton.setOnClickListener { takePhoto() }
+        binding.btnFlipCamera.setOnClickListener { flipCamera() }
+        binding.btnFlash.setOnClickListener { toggleFlash() }
+        
         cameraExecutor = Executors.newSingleThreadExecutor()
 
         setupObservers()
+    }
+
+    private fun flipCamera() {
+        lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) {
+            CameraSelector.LENS_FACING_FRONT
+        } else {
+            CameraSelector.LENS_FACING_BACK
+        }
+        startCamera()
+    }
+
+    private fun toggleFlash() {
+        flashMode = when (flashMode) {
+            ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_ON
+            ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_AUTO
+            else -> ImageCapture.FLASH_MODE_OFF
+        }
+        
+        val icon = when (flashMode) {
+            ImageCapture.FLASH_MODE_ON -> android.R.drawable.btn_star_big_on
+            ImageCapture.FLASH_MODE_AUTO -> android.R.drawable.ic_menu_help
+            else -> android.R.drawable.stat_sys_warning
+        }
+        binding.btnFlash.setImageResource(icon)
+        startCamera()
     }
 
     override fun onRequestPermissionsResult(
@@ -95,6 +129,7 @@ class CameraFragment : Fragment() {
     private fun takePhoto() {
         val imageCapture = imageCapture ?: return
 
+        imageCapture.flashMode = flashMode
         imageCapture.takePicture(
             ContextCompat.getMainExecutor(requireContext()),
             object : ImageCapture.OnImageCapturedCallback() {
@@ -144,6 +179,7 @@ class CameraFragment : Fragment() {
         }
         
         binding.btnConfirm.setOnClickListener {
+            reportViewModel.setCapturedImage(bitmap)
             findNavController().navigate(R.id.action_camera_to_reportLocation)
         }
     }
@@ -171,13 +207,17 @@ class CameraFragment : Fragment() {
                     it.setSurfaceProvider(binding.viewFinder.surfaceProvider)
                 }
 
-            imageCapture = ImageCapture.Builder().build()
+            imageCapture = ImageCapture.Builder()
+                .setFlashMode(flashMode)
+                .build()
 
-            val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+            val cameraSelector = CameraSelector.Builder()
+                .requireLensFacing(lensFacing)
+                .build()
 
             try {
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+                camera = cameraProvider.bindToLifecycle(
                     this, cameraSelector, preview, imageCapture
                 )
             } catch (exc: Exception) {

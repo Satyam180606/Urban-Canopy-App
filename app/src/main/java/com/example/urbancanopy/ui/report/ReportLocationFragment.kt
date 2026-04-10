@@ -22,6 +22,8 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import com.example.urbancanopy.viewmodel.ReportViewModel
+import androidx.lifecycle.ViewModelProvider
 import java.util.Locale
 
 class ReportLocationFragment : Fragment(), OnMapReadyCallback {
@@ -31,6 +33,7 @@ class ReportLocationFragment : Fragment(), OnMapReadyCallback {
     
     private lateinit var mMap: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var reportViewModel: ReportViewModel
     private var selectedLatLng: LatLng? = null
 
     override fun onCreateView(
@@ -45,6 +48,7 @@ class ReportLocationFragment : Fragment(), OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState)
         
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        reportViewModel = ViewModelProvider(requireActivity()).get(ReportViewModel::class.java)
         
         val mapFragment = childFragmentManager.findFragmentById(R.id.map_view) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -58,7 +62,12 @@ class ReportLocationFragment : Fragment(), OnMapReadyCallback {
         }
         
         binding.btnContinue.setOnClickListener {
-            findNavController().navigate(R.id.action_reportLocation_to_reportFollowUp)
+            selectedLatLng?.let { latLng ->
+                reportViewModel.setLocation(latLng, binding.etAddress.text.toString())
+                findNavController().navigate(R.id.action_reportLocation_to_reportFollowUp)
+            } ?: run {
+                Toast.makeText(requireContext(), "Please select a location first", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

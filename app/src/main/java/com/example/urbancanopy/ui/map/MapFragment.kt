@@ -1,5 +1,6 @@
 package com.example.urbancanopy.ui.map
 
+import android.annotation.SuppressLint
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -15,6 +16,8 @@ import com.example.urbancanopy.databinding.FragmentMapBinding
 import com.example.urbancanopy.logic.Repository
 import com.example.urbancanopy.viewmodel.MapViewModel
 import com.example.urbancanopy.viewmodel.MapViewModelFactory
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -30,6 +33,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var viewModel: MapViewModel
     private var googleMap: GoogleMap? = null
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,6 +47,8 @@ class MapFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        
         val repository = Repository()
         val factory = MapViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory).get(MapViewModel::class.java)
@@ -58,7 +64,7 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) 
             == PackageManager.PERMISSION_GRANTED) {
-            googleMap?.isMyLocationEnabled = true
+            enableMyLocation()
         } else {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1001)
         }
@@ -82,15 +88,39 @@ class MapFragment : Fragment(), OnMapReadyCallback {
         }
 
         googleMap?.setOnMapLongClickListener { latLng ->
-            // In a real app, show a Bottom Sheet here
-            // For this flow, we'll navigate directly to Camera to "submit" this spot
             findNavController().navigate(R.id.action_map_to_camera)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun enableMyLocation() {
+        googleMap?.isMyLocationEnabled = true
+        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+            location?.let {
+                val currentLatLng = LatLng(it.latitude, it.longitude)
+                googleMap?.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15f))
+            }
         }
     }
 
     private fun setupListeners() {
         binding.fabMyLocation.setOnClickListener {
-            // Logic to zoom to user location
+            if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) 
+                == PackageManager.PERMISSION_GRANTED) {
+                enableMyLocation()
+            } else {
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1001)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            enableMyLocation()
         }
     }
 
