@@ -7,15 +7,17 @@ import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+import com.example.urbancanopy.model.Report
+
 class MapViewModel(private val repository: Repository) : ViewModel() {
 
-    private val _patches = MutableLiveData<List<Patch>>()
-    val patches: LiveData<List<Patch>> = _patches
+    private val _reports = MutableLiveData<List<Report>>()
+    val reports: LiveData<List<Report>> = _reports
 
     init {
         viewModelScope.launch {
-            repository.getOpenMissions().collect {
-                _patches.value = it
+            repository.getReports().collect {
+                _reports.value = it
             }
         }
     }

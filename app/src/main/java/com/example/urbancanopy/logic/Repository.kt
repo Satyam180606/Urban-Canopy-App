@@ -11,9 +11,20 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import com.example.urbancanopy.model.Report
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
+
 class Repository {
     private val auth = FirebaseAuth.getInstance()
-    private val db = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val database = FirebaseDatabase.getInstance("https://urban-canopy-solution-default-rtdb.asia-southeast1.firebasedatabase.app").getReference("reports")
     private val gameEngine = GameEngine()
 
     fun getCurrentUser() = auth.currentUser
@@ -24,14 +35,14 @@ class Repository {
 
     suspend fun getUserProfile(uid: String): User? {
         return try {
-            db.collection("users").document(uid).get().await().toObject<User>()
+            firestore.collection("users").document(uid).get().await().toObject<User>()
         } catch (e: Exception) {
             null
         }
     }
 
     fun getMissions(): Flow<List<Mission>> = callbackFlow {
-        val subscription = db.collection("missions")
+        val subscription = firestore.collection("missions")
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
                     trySend(snapshot.toObjects<Mission>())
@@ -41,7 +52,7 @@ class Repository {
     }
 
     fun getLeaderboard(): Flow<List<LeaderboardEntry>> = callbackFlow {
-        val subscription = db.collection("users")
+        val subscription = firestore.collection("users")
             .orderBy("totalPoints", Query.Direction.DESCENDING)
             .limit(50)
             .addSnapshotListener { snapshot, _ ->
@@ -62,7 +73,7 @@ class Repository {
     }
 
     fun getUserPatches(uid: String): Flow<List<Patch>> = callbackFlow {
-        val subscription = db.collection("patches")
+        val subscription = firestore.collection("patches")
             .whereEqualTo("userId", uid)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot != null) {
@@ -72,14 +83,20 @@ class Repository {
         awaitClose { subscription.remove() }
     }
     
-    fun getOpenMissions(): Flow<List<Patch>> = callbackFlow {
-        val subscription = db.collection("patches")
-            .whereEqualTo("status", "pending")
-            .addSnapshotListener { snapshot, _ ->
-                if (snapshot != null) {
-                    trySend(snapshot.toObjects<Patch>())
+    fun getReports(): Flow<List<Report>> = callbackFlow {
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val reports = mutableListOf<Report>()
+                for (child in snapshot.children) {
+                    child.getValue(Report::class.java)?.let { reports.add(it) }
                 }
+                trySend(reports)
             }
-        awaitClose { subscription.remove() }
+            override fun onCancelled(error: DatabaseError) {
+                close(error.toException())
+            }
+        }
+        database.addValueEventListener(listener)
+        awaitClose { database.removeEventListener(listener) }
     }
 }

@@ -69,19 +69,20 @@ class MapFragment : Fragment(), OnMapReadyCallback {
             requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 1001)
         }
 
-        viewModel.patches.observe(viewLifecycleOwner) { patches ->
+        viewModel.reports.observe(viewLifecycleOwner) { reports ->
             googleMap?.clear()
-            for (patch in patches) {
-                val color = when (patch.status) {
-                    "verified" -> BitmapDescriptorFactory.HUE_GREEN
-                    "pending" -> BitmapDescriptorFactory.HUE_RED
+            for (report in reports) {
+                val color = when (report.severity) {
+                    "High" -> BitmapDescriptorFactory.HUE_RED
+                    "Medium" -> BitmapDescriptorFactory.HUE_ORANGE
                     else -> BitmapDescriptorFactory.HUE_YELLOW
                 }
                 
                 googleMap?.addMarker(
                     MarkerOptions()
-                        .position(LatLng(patch.latitude, patch.longitude))
-                        .title(patch.description)
+                        .position(LatLng(report.latitude, report.longitude))
+                        .title(report.violationType)
+                        .snippet(report.address)
                         .icon(BitmapDescriptorFactory.defaultMarker(color))
                 )
             }
