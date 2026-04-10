@@ -137,7 +137,9 @@
                             android:id="@+id/etAddress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:inputType="textPostalAddress" />
+                            android:inputType="textPostalAddress"
+                            android:textColor="#1A1C1E"
+                            android:textColorHint="#5E6267" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.button.MaterialButton

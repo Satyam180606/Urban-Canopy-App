@@ -1,6 +1,7 @@
 package com.example.urbancanopy
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
@@ -21,5 +22,22 @@ class MainActivity : AppCompatActivity() {
         val navController = navHostFragment.navController
         
         binding.bottomNav.setupWithNavController(navController)
+
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.cameraFragment -> {
+                    navController.navigate(R.id.cameraFragment)
+                    true
+                }
+                R.id.mapFragment -> {
+                    navController.navigate(R.id.mapFragment)
+                    true
+                }
+                else -> {
+                    Toast.makeText(this, "${item.title} Coming Soon!", Toast.LENGTH_SHORT).show()
+                    false
+                }
+            }
+        }
     }
 }
