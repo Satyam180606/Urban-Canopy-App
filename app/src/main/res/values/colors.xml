@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primary">#0F9D58</color>
+    <color name="primary_dark">#0B8043</color>
+    <color name="accent">#4285F4</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00000000</color>
+
+    <color name="nav_background">#10A37F</color>
+    <color name="nav_item_selected">#3DBE9F</color>
+    <color name="overlay_dark">#80000000</color>
+    <color name="camera_accent">#00FF99</color>
+</resources>

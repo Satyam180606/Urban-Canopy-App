@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/cameraFragment">
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.example.urbancanopy.ui.home.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home">
+        <action
+            android:id="@+id/action_home_to_map"
+            app:destination="@id/mapFragment" />
+        <action
+            android:id="@+id/action_home_to_leaderboard"
+            app:destination="@id/leaderboardFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.urbancanopy.ui.map.MapFragment"
+        android:label="Map"
+        tools:layout="@layout/fragment_map">
+        <action
+            android:id="@+id/action_map_to_camera"
+            app:destination="@id/cameraFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cameraFragment"
+        android:name="com.example.urbancanopy.ui.camera.CameraFragment"
+        android:label="Capture Patch"
+        tools:layout="@layout/fragment_camera">
+        <action
+            android:id="@+id/action_camera_to_reportLocation"
+            app:destination="@id/reportLocationFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reportLocationFragment"
+        android:name="com.example.urbancanopy.ui.report.ReportLocationFragment"
+        android:label="Report Location"
+        tools:layout="@layout/fragment_report_location">
+        <action
+            android:id="@+id/action_reportLocation_to_reportFollowUp"
+            app:destination="@id/reportFollowUpFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reportFollowUpFragment"
+        android:name="com.example.urbancanopy.ui.report.ReportFollowUpFragment"
+        android:label="Report Follow-up"
+        tools:layout="@layout/fragment_report_followup">
+        <action
+            android:id="@+id/action_reportFollowUp_to_reportDetails"
+            app:destination="@id/reportDetailsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/reportDetailsFragment"
+        android:name="com.example.urbancanopy.ui.report.ReportDetailsFragment"
+        android:label="Report Details"
+        tools:layout="@layout/fragment_report_details" />
+
+    <fragment
+        android:id="@+id/walletFragment"
+        android:name="com.example.urbancanopy.ui.wallet.WalletFragment"
+        android:label="My Wallet"
+        tools:layout="@layout/fragment_wallet" />
+
+    <fragment
+        android:id="@+id/leaderboardFragment"
+        android:name="com.example.urbancanopy.ui.leaderboard.LeaderboardFragment"
+        android:label="Leaderboard"
+        tools:layout="@layout/fragment_leaderboard" />
+</navigation>
